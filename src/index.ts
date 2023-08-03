@@ -9,15 +9,24 @@ app.use(cors());
 
 app.post("/users/create", (req: Request, res: Response) => {
     try {
-        // validar as entradas da requisição
-        // consultar ou alterar a base de dados
         const { name, CPF, dateOfBirthAsString } = req.body
 
-        const { day, month, year } = dateOfBirthAsString.split("/")
-        // vai transformar o DD/MM/AAAA em { DD, MM, AAAA } como string
-        
-        const dateOfBirth: Date = new Date(`${year}-${month}-${day}`)
+        const [day, month, year]  = dateOfBirthAsString.split("/")
 
+        const dateOfBirth: Date = new Date(`${year}-${month}-${day}`)
+        // vai transformar o DD/MM/AAAA em { DD, MM, AAAA } como string
+
+        // validar as entradas da requisição
+        const ageInMilliseconds: number = Date.now() - dateOfBirth.getTime()
+
+        const ageInYears: number = ageInMilliseconds / 1000 / 60 / 60 / 24 / 365
+
+        if (ageInYears < 18){
+            res.statusCode = 406
+            throw new Error("Idade deve ser maior que 18 anos")
+        }
+
+        // consultar ou alterar a base de dados
         accounts.push({
             name,
             CPF,
